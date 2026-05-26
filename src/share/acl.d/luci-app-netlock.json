@@ -3,7 +3,7 @@
 		"description": "Grant access to NetLock configuration",
 		"read": {
 			"ubus": {
-				"netlock": ["status", "clients"]
+				"netlock": ["status", "clients", "interfaces"]
 			},
 			"uci": ["netlock"]
 		},
