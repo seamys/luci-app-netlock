@@ -1,0 +1,6 @@
+
+config void_anchor 'global'
+	option enabled '1'
+	option grace_period '300'
+	option poll_interval '10'
+	# list target_mac 'xx:xx:xx:xx:xx:xx'

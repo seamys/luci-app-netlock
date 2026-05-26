@@ -1,0 +1,13 @@
+{
+	"admin/services/void-anchor": {
+		"title": "VOID ANCHOR",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "void-anchor/overview"
+		},
+		"depends": {
+			"acl": [ "luci-app-void-anchor" ]
+		}
+	}
+}
