@@ -16,7 +16,7 @@ _load_config() {
 	grace_period=$(uci -q get "$CONF.global.grace_period" || echo 300)
 	poll_interval=$(uci -q get "$CONF.global.poll_interval" || echo 10)
 	target_macs=$(uci -q get "$CONF.global.target_mac" | tr 'A-F' 'a-f')
-	monitor_ifaces=$(uci -q get "$CONF.global.monitor_iface")
+	monitor_ifaces=$(uci -q get "$CONF.global.monitor_iface" || true)
 
 	[ "$poll_interval" -ge 2 ] 2>/dev/null || poll_interval=10
 	[ "$grace_period" -ge 0 ] 2>/dev/null || grace_period=300
@@ -89,6 +89,22 @@ assert_match "aA:bB:cC:dD:eE:fF" "$MAC_RE" "mixed case MAC matches"
 assert_no_match "GG:HH:II:JJ:KK:LL" "$MAC_RE" "invalid hex rejects"
 assert_no_match "aa:bb:cc:dd:ee" "$MAC_RE" "incomplete MAC rejects"
 assert_no_match "aa-bb-cc-dd-ee-ff" "$MAC_RE" "dash-separated MAC rejects"
+
+describe "Config loading survives set -e with missing options"
+
+rm -f "${MOCK_UCI_DIR}/netlock"
+mock_uci_set "netlock.global.enabled" "1"
+mock_uci_set "netlock.global.target_mac" "AA:BB:CC:DD:EE:FF"
+# Note: monitor_iface is NOT set — this must not crash under set -e
+
+_survived=""
+( set -e; _load_config; _survived=yes; echo "$_survived" ) > "${MOCK_DIR}/set_e_result"
+assert_equal "" "" "load_config does not crash under set -e with missing monitor_iface"
+
+# Also verify via subshell exit code
+_exit_code=0
+( set -e; _load_config ) || _exit_code=$?
+assert_equal "0" "$_exit_code" "load_config exits 0 under set -e"
 
 # --- Teardown & Summary ---
 mock_teardown

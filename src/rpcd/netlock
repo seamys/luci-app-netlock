@@ -26,6 +26,17 @@ _method_status() {
 	fi
 }
 
+_method_interfaces() {
+	local ifc
+	json_init
+	json_add_array "interfaces"
+	for ifc in $(ubus list 2>/dev/null | sed -n 's/^hostapd\.//p'); do
+		json_add_string "" "$ifc"
+	done
+	json_close_array
+	json_dump
+}
+
 _method_clients() {
 	local tmp uniq ifc mac sig lease ip host
 	tmp=$(mktemp); uniq=$(mktemp)
@@ -66,12 +77,13 @@ _method_clients() {
 
 case "$1" in
 	list)
-		echo '{ "status": {}, "clients": {} }'
+		echo '{ "status": {}, "clients": {}, "interfaces": {} }'
 		;;
 	call)
 		case "$2" in
 			status)  _method_status ;;
 			clients) _method_clients ;;
+			interfaces) _method_interfaces ;;
 			*) echo '{}' ;;
 		esac
 		;;

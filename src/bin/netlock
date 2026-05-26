@@ -26,7 +26,7 @@ _load_config() {
 	grace_period=$(uci -q get "$CONF.global.grace_period" || echo 300)
 	poll_interval=$(uci -q get "$CONF.global.poll_interval" || echo 10)
 	target_macs=$(uci -q get "$CONF.global.target_mac" | tr 'A-F' 'a-f')
-	monitor_ifaces=$(uci -q get "$CONF.global.monitor_iface")
+	monitor_ifaces=$(uci -q get "$CONF.global.monitor_iface" || true)
 
 	[ "$poll_interval" -ge 2 ] 2>/dev/null || poll_interval=10
 	[ "$grace_period" -ge 0 ] 2>/dev/null || grace_period=300

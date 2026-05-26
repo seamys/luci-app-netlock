@@ -5,17 +5,20 @@
 'require rpc';
 
 var callClients = rpc.declare({ object: 'netlock', method: 'clients' });
+var callInterfaces = rpc.declare({ object: 'netlock', method: 'interfaces' });
 
 return view.extend({
 	load: function() {
 		return Promise.all([
 			uci.load('netlock'),
-			callClients().catch(function() { return { clients: [] }; })
+			callClients().catch(function() { return { clients: [] }; }),
+			callInterfaces().catch(function() { return { interfaces: [] }; })
 		]);
 	},
 
 	render: function(data) {
 		var clients = (data[1] && data[1].clients) || [];
+		var ifaces = (data[2] && data[2].interfaces) || [];
 
 		var m, s, o;
 
@@ -74,6 +77,9 @@ return view.extend({
 		o = s.option(form.DynamicList, 'monitor_iface', _('Monitor Interfaces'),
 			_('Restrict presence scanning to specific AP interfaces. Leave empty to auto-detect all hostapd interfaces. Example: phy0-ap0.'));
 		o.optional = true;
+		ifaces.forEach(function(ifc) {
+			o.value(ifc, ifc);
+		});
 
 		return m.render();
 	}
