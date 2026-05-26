@@ -101,17 +101,26 @@ function renderDetails(st) {
 	if (targets.length) {
 		targets.forEach(function(mac) {
 			var isOnline = matched.indexOf(mac) !== -1;
+			var bg = isOnline ? '#e8f5e9' : '#ffebee';
+			var border = isOnline ? '#2e7d32' : '#c62828';
+			var color = isOnline ? '#1b5e20' : '#b71c1c';
+			var label = isOnline ? _('Online') : _('Offline');
+			var macBadge = E('span', {
+				'style': 'display:inline-block;padding:4px 10px;border-radius:4px;' +
+				         'font-family:monospace;font-size:0.9em;' +
+				         'background:' + bg + ';border:1px solid ' + border + ';color:' + color
+			}, mac);
 			var statusEl = isOnline
-				? E('span', { 'style': 'color:#2e7d32;font-weight:bold' }, '\u25cf ' + _('Online'))
-				: E('span', { 'style': 'color:#c62828;font-weight:bold' }, '\u25cb ' + _('Offline'));
+				? badge(_('Online'), '#2e7d32')
+				: badge(_('Offline'), '#c62828');
 			deviceRows.push(E('tr', { 'class': 'tr' }, [
-				E('td', { 'class': 'td left', 'width': '33%' }, E('code', {}, mac)),
+				E('td', { 'class': 'td left', 'width': '40%' }, macBadge),
 				E('td', { 'class': 'td left' }, statusEl)
 			]));
 		});
 	} else {
 		deviceRows.push(E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td left', 'width': '33%' }, '\u2014'),
+			E('td', { 'class': 'td left', 'width': '40%' }, '\u2014'),
 			E('td', { 'class': 'td left' }, '\u2014')
 		]));
 	}
