@@ -55,11 +55,13 @@ function renderCards(st) {
 		deviceColor = '#888';
 		deviceText  = _('Inactive');
 	} else if (st.present) {
+		var matchCount = (st.matched && st.matched.length) || 0;
+		var totalCount = (st.targets && st.targets.length) || 0;
 		deviceColor = '#2e7d32';
-		deviceText  = _('Device Online');
+		deviceText  = matchCount + '/' + totalCount + ' ' + _('Online');
 	} else {
 		deviceColor = '#c62828';
-		deviceText  = _('Device Offline');
+		deviceText  = _('All Offline');
 	}
 
 	if (st.blocked) {
@@ -91,18 +93,35 @@ function renderCards(st) {
 
 function renderDetails(st) {
 	st = st || {};
-	var matched = (st.matched && st.matched.length) ? st.matched.join(', ') : '\u2014';
-	var targets = (st.targets && st.targets.length) ? st.targets.join(', ') : '\u2014';
+	var targets = (st.targets && st.targets.length) ? st.targets : [];
+	var matched = (st.matched && st.matched.length) ? st.matched : [];
 
-	return E('table', { 'class': 'table' }, [
-		E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td left', 'width': '33%' }, E('strong', {}, _('Monitored MACs'))),
-			E('td', { 'class': 'td left' }, targets)
-		]),
-		E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td left' }, E('strong', {}, _('Matched MACs'))),
-			E('td', { 'class': 'td left' }, matched)
-		]),
+	/* ── Per-device status rows ─────────────────────── */
+	var deviceRows = [];
+	if (targets.length) {
+		targets.forEach(function(mac) {
+			var isOnline = matched.indexOf(mac) !== -1;
+			var statusEl = isOnline
+				? E('span', { 'style': 'color:#2e7d32;font-weight:bold' }, '\u25cf ' + _('Online'))
+				: E('span', { 'style': 'color:#c62828;font-weight:bold' }, '\u25cb ' + _('Offline'));
+			deviceRows.push(E('tr', { 'class': 'tr' }, [
+				E('td', { 'class': 'td left', 'width': '33%' }, E('code', {}, mac)),
+				E('td', { 'class': 'td left' }, statusEl)
+			]));
+		});
+	} else {
+		deviceRows.push(E('tr', { 'class': 'tr' }, [
+			E('td', { 'class': 'td left', 'width': '33%' }, '\u2014'),
+			E('td', { 'class': 'td left' }, '\u2014')
+		]));
+	}
+
+	var rows = [
+		E('tr', { 'class': 'tr table-titles' }, [
+			E('th', { 'class': 'th left', 'width': '33%' }, _('Anchor Device')),
+			E('th', { 'class': 'th left' }, _('Status'))
+		])
+	].concat(deviceRows).concat([
 		E('tr', { 'class': 'tr' }, [
 			E('td', { 'class': 'td left' }, E('strong', {}, _('Grace Period'))),
 			E('td', { 'class': 'td left' }, (st.grace_period || 300) + ' ' + _('seconds'))
@@ -112,6 +131,8 @@ function renderDetails(st) {
 			E('td', { 'class': 'td left' }, (st.poll_interval || 10) + ' ' + _('seconds'))
 		])
 	]);
+
+	return E('table', { 'class': 'table' }, rows);
 }
 
 return view.extend({
