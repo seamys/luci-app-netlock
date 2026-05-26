@@ -1,11 +1,11 @@
 #!/bin/sh
-# rpcd backend for void-anchor (luci-app-void-anchor).
-# ubus object: void-anchor   methods: status, clients
+# rpcd backend for netlock (luci-app-netlock).
+# ubus object: netlock   methods: status, clients
 
 . /usr/share/libubox/jshn.sh
 
-CONF=void_anchor
-STATUS_FILE=/var/run/void-anchor.json
+CONF=netlock
+STATUS_FILE=/var/run/netlock.json
 MAC_HDR='^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}'
 
 ap_ifaces() {

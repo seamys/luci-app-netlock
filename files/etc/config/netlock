@@ -1,5 +1,5 @@
 
-config void_anchor 'global'
+config netlock 'global'
 	option enabled '1'
 	option grace_period '300'
 	option poll_interval '10'

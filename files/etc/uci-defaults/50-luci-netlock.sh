@@ -1,5 +1,5 @@
 #!/bin/sh
-/etc/init.d/void_anchor enable
+/etc/init.d/netlock enable
 
 # pick up the new rpcd acl/object and refresh the LuCI menu cache
 /etc/init.d/rpcd reload 2>/dev/null

@@ -4,7 +4,7 @@ USE_PROCD=1
 START=95
 STOP=10
 
-PROG=/usr/sbin/void-anchor
+PROG=/usr/sbin/netlock
 
 start_service() {
 	procd_open_instance
@@ -16,5 +16,5 @@ start_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "void_anchor"
+	procd_add_reload_trigger "netlock"
 }

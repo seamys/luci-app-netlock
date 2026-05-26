@@ -5,8 +5,8 @@
 'require rpc';
 'require poll';
 
-var callStatus = rpc.declare({ object: 'void-anchor', method: 'status' });
-var callClients = rpc.declare({ object: 'void-anchor', method: 'clients' });
+var callStatus = rpc.declare({ object: 'netlock', method: 'status' });
+var callClients = rpc.declare({ object: 'netlock', method: 'clients' });
 
 function ago(ts) {
 	if (!ts) return '—';
@@ -27,22 +27,22 @@ function renderStatus(st) {
 	var present, net;
 
 	if (!st.enabled)
-		present = badge('锚点未激活', '#888');
+		present = badge('未激活', '#888');
 	else if (st.present)
-		present = badge('锚点就位', '#2e7d32');
+		present = badge('设备在线', '#2e7d32');
 	else
-		present = badge('锚点漂失', '#c62828');
+		present = badge('设备离线', '#c62828');
 
 	if (st.blocked)
-		net = badge('虚空封锁', '#c62828');
+		net = badge('网络封锁', '#c62828');
 	else
-		net = badge('通道开放', '#2e7d32');
+		net = badge('网络开放', '#2e7d32');
 
 	var matched = (st.matched && st.matched.length) ? st.matched.join(', ') : '—';
 
 	return E('table', { 'class': 'table' }, [
 		E('tr', { 'class': 'tr' }, [
-			E('td', { 'class': 'td left', 'width': '33%' }, E('strong', {}, '锚点状态')),
+			E('td', { 'class': 'td left', 'width': '33%' }, E('strong', {}, '设备状态')),
 			E('td', { 'class': 'td left' }, present)
 		]),
 		E('tr', { 'class': 'tr' }, [
@@ -63,7 +63,7 @@ function renderStatus(st) {
 return view.extend({
 	load: function () {
 		return Promise.all([
-			uci.load('void_anchor'),
+			uci.load('netlock'),
 			callClients().catch(function () { return { clients: [] }; })
 		]);
 	},
@@ -81,19 +81,19 @@ return view.extend({
 
 		var m, s, o;
 
-		m = new form.Map('void_anchor', 'VOID ANCHOR · 虚空锚点',
-			'将手机设为虚空锚点 —— 锚点就位时通道开放,锚点漂失超过宽限时间后所有客户端进入虚空封锁。' +
+		m = new form.Map('netlock', 'NETLOCK · 网络锁',
+			'将手机设为网络锁锚点 —— 锚点在线时网络开放,锚点离线超过宽限时间后所有客户端进入网络封锁。' +
 			'拦截在 prerouting 早期完成(priority -300),直连与 OpenClash 代理流量同步切断,局域网与路由器管理仍可用。');
 
-		s = m.section(form.NamedSection, 'global', 'void_anchor', '设置');
+		s = m.section(form.NamedSection, 'global', 'netlock', '设置');
 		s.anonymous = true;
 
-		o = s.option(form.Flag, 'enabled', '激活锚点',
+		o = s.option(form.Flag, 'enabled', '启用网络锁',
 			'关闭后立即解除封锁,恢复所有客户端联网。');
 		o.rmempty = false;
 
 		o = s.option(form.DynamicList, 'target_mac', '锚点设备 MAC',
-			'作为虚空锚点的手机 MAC,可填多个(任一在场即开放通道)。下拉为当前在线设备,也可手动输入。' +
+			'作为网络锁锚点的手机 MAC,可填多个(任一在线即开放网络)。下拉为当前在线设备,也可手动输入。' +
 			'注意:请在手机端关闭该 WiFi 的"随机 MAC",否则锚点地址漂移会导致失效。');
 		o.datatype = 'macaddr';
 		clients.forEach(function (c) {
@@ -104,7 +104,7 @@ return view.extend({
 			o.value(c.mac, label);
 		});
 
-		o = s.option(form.Value, 'grace_period', '漂失宽限时间(秒)',
+		o = s.option(form.Value, 'grace_period', '离线宽限时间(秒)',
 			'锚点持续漂失超过该秒数才触发封锁,避免手机锁屏休眠误断。默认 300(5 分钟)。');
 		o.datatype = 'uinteger';
 		o.placeholder = '300';

@@ -1,17 +1,15 @@
 #!/bin/sh
-# void-anchor daemon: open the internet only while a "key" phone is present
+# netlock daemon: open the internet only while a "key" phone is present
 # on the WiFi, cut it (for all LAN clients) once the phone has been gone longer
 # than the grace period. Works with OpenClash TProxy because blocking happens at
 # the raw/prerouting stage (priority -300), before the TProxy redirect.
-#
-# Canonical source: tools/void-anchor/ in the openwrt-openclash-guide repo.
 
 . /lib/functions.sh
 . /lib/functions/network.sh
 
-CONF=void_anchor
-STATUS_FILE=/var/run/void-anchor.json
-LOG_TAG=void-anchor
+CONF=netlock
+STATUS_FILE=/var/run/netlock.json
+LOG_TAG=netlock
 MAC_RE='([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}'
 
 log() { logger -t "$LOG_TAG" "$1"; }
@@ -116,7 +114,7 @@ nft_block() {
 	[ -n "$ULA" ] && v6_local="$v6_local, $ULA"
 
 	nft -f - <<-EOF
-		table inet void_anchor {
+		table inet netlock {
 			chain prerouting {
 				type filter hook prerouting priority -300; policy accept;
 				iifname "$LAN_DEV" ip  daddr $LAN_SUBNET accept
@@ -130,7 +128,7 @@ nft_block() {
 }
 
 nft_unblock() {
-	nft delete table inet void_anchor 2>/dev/null
+	nft delete table inet netlock 2>/dev/null
 	return 0
 }
 
