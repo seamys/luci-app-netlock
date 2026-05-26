@@ -1,0 +1,29 @@
+{
+	"admin/services/netlock": {
+		"title": "NetLock",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "netlock/overview"
+		},
+		"depends": {
+			"acl": ["luci-app-netlock"]
+		}
+	},
+	"admin/services/netlock/overview": {
+		"title": "Dashboard",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "netlock/overview"
+		}
+	},
+	"admin/services/netlock/settings": {
+		"title": "Settings",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "netlock/settings"
+		}
+	}
+}

@@ -1,0 +1,143 @@
+# NetLock - Translation Template
+# Copyright (C) 2024 haizi
+# This file is distributed under the same license as the luci-app-netlock package.
+#
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "seconds ago"
+msgstr ""
+
+msgid "minutes ago"
+msgstr ""
+
+msgid "hours ago"
+msgstr ""
+
+msgid "Inactive"
+msgstr ""
+
+msgid "Device Online"
+msgstr ""
+
+msgid "Device Offline"
+msgstr ""
+
+msgid "Network Blocked"
+msgstr ""
+
+msgid "Network Open"
+msgstr ""
+
+msgid "Anchor Device"
+msgstr ""
+
+msgid "Internet Access"
+msgstr ""
+
+msgid "Last Seen"
+msgstr ""
+
+msgid "Monitored MACs"
+msgstr ""
+
+msgid "Matched MACs"
+msgstr ""
+
+msgid "Grace Period"
+msgstr ""
+
+msgid "Poll Interval"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "Reloading..."
+msgstr ""
+
+msgid "Configuration reloaded successfully."
+msgstr ""
+
+msgid "Reload failed: "
+msgstr ""
+
+msgid "Reload Configuration"
+msgstr ""
+
+msgid "Getting Started"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Configure anchor device MAC address and timing parameters"
+msgstr ""
+
+msgid "Return here to monitor real-time status"
+msgstr ""
+
+msgid "NetLock \u2014 Dashboard"
+msgstr ""
+
+msgid "Presence-based network control: internet access is open when the anchor device is on WiFi, and blocked for all LAN clients when it has been absent beyond the grace period."
+msgstr ""
+
+msgid "Service Status"
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "Quick Actions"
+msgstr ""
+
+msgid "NetLock \u2014 Settings"
+msgstr ""
+
+msgid "Configure anchor device and network lock behavior. The anchor device is typically your phone \u2014 when it is present on WiFi, internet is open for all LAN clients. When absent beyond the grace period, all external traffic is blocked."
+msgstr ""
+
+msgid "Service"
+msgstr ""
+
+msgid "Enable NetLock"
+msgstr ""
+
+msgid "When disabled, internet access is immediately restored for all clients."
+msgstr ""
+
+msgid "Anchor Device MAC"
+msgstr ""
+
+msgid "MAC address(es) of the anchor device (usually your phone). Multiple MACs supported \u2014 internet opens when ANY one is detected. Select from the dropdown (live WiFi clients) or enter manually. Important: disable \"Randomize MAC\" on the phone for this WiFi network."
+msgstr ""
+
+msgid "Invalid MAC address format"
+msgstr ""
+
+msgid "Timing"
+msgstr ""
+
+msgid "Grace Period (seconds)"
+msgstr ""
+
+msgid "How long to wait after anchor goes offline before blocking internet. Prevents false triggers from phone screen-off sleep. Recommended: 300 (5 minutes)."
+msgstr ""
+
+msgid "Poll Interval (seconds)"
+msgstr ""
+
+msgid "How often to scan for anchor device presence. Lower values mean faster response but slightly higher CPU usage. Recommended: 10."
+msgstr ""
+
+msgid "Advanced"
+msgstr ""
+
+msgid "Monitor Interfaces"
+msgstr ""
+
+msgid "Restrict presence scanning to specific AP interfaces. Leave empty to auto-detect all hostapd interfaces. Example: phy0-ap0."
+msgstr ""

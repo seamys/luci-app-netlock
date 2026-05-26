@@ -1,0 +1,78 @@
+#!/bin/sh
+# rpcd backend for netlock (luci-app-netlock).
+# ubus object: netlock   methods: status, clients
+
+. /usr/share/libubox/jshn.sh
+
+CONF=netlock
+STATUS_FILE=/var/run/netlock.json
+MAC_RE='([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}'
+
+_ap_ifaces() {
+	local m
+	m=$(uci -q get "$CONF.global.monitor_iface")
+	if [ -n "$m" ]; then
+		echo "$m"
+	else
+		ubus list 2>/dev/null | sed -n 's/^hostapd\.//p'
+	fi
+}
+
+_method_status() {
+	if [ -f "$STATUS_FILE" ]; then
+		cat "$STATUS_FILE"
+	else
+		echo '{"enabled":0,"present":0,"blocked":0,"last_seen":0,"targets":[],"matched":[]}'
+	fi
+}
+
+_method_clients() {
+	local tmp uniq ifc mac sig lease ip host
+	tmp=$(mktemp); uniq=$(mktemp)
+
+	# devices on our own AP(s): mac + signal
+	for ifc in $(_ap_ifaces); do
+		iwinfo "$ifc" assoclist 2>/dev/null | \
+			awk -v re="$MAC_RE" '$0 ~ re {print tolower($1), $2}'
+	done >> "$tmp"
+
+	# LAN neighbors (covers downstream/bridged APs): mac with no signal
+	ip neigh show 2>/dev/null | \
+		awk '{ for (i=1;i<=NF;i++) if ($i=="lladdr") print tolower($(i+1)), "" }' >> "$tmp"
+
+	# keep first occurrence per MAC (AP rows carry signal and come first)
+	awk '$1 != "" && !seen[$1]++' "$tmp" > "$uniq"
+
+	json_init
+	json_add_array "clients"
+	while read -r mac sig; do
+		[ -n "$mac" ] || continue
+		lease=$(awk -v m="$mac" 'tolower($2)==m {print $3"\t"$4; exit}' /tmp/dhcp.leases 2>/dev/null)
+		ip=${lease%%	*}
+		host=${lease#*	}
+		[ "$host" = "$lease" ] && host=""
+		[ -n "$ip" ] || ip=$(ip neigh show 2>/dev/null | awk -v m="$mac" 'tolower($0) ~ m {print $1; exit}')
+		json_add_object
+		json_add_string "mac" "$mac"
+		json_add_string "signal" "$sig"
+		json_add_string "ip" "$ip"
+		json_add_string "hostname" "$host"
+		json_close_object
+	done < "$uniq"
+	json_close_array
+	rm -f "$tmp" "$uniq"
+	json_dump
+}
+
+case "$1" in
+	list)
+		echo '{ "status": {}, "clients": {} }'
+		;;
+	call)
+		case "$2" in
+			status)  _method_status ;;
+			clients) _method_clients ;;
+			*) echo '{}' ;;
+		esac
+		;;
+esac

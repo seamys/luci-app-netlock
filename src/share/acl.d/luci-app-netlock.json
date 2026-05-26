@@ -1,0 +1,17 @@
+{
+	"luci-app-netlock": {
+		"description": "Grant access to NetLock configuration",
+		"read": {
+			"ubus": {
+				"netlock": ["status", "clients"]
+			},
+			"uci": ["netlock"]
+		},
+		"write": {
+			"uci": ["netlock"],
+			"file": {
+				"/etc/init.d/netlock": ["exec"]
+			}
+		}
+	}
+}

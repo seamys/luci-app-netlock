@@ -1,0 +1,144 @@
+# NetLock - Chinese Simplified Translation
+# Copyright (C) 2024 haizi
+# This file is distributed under the same license as the luci-app-netlock package.
+#
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_Hans\n"
+
+msgid "seconds ago"
+msgstr "秒前"
+
+msgid "minutes ago"
+msgstr "分钟前"
+
+msgid "hours ago"
+msgstr "小时前"
+
+msgid "Inactive"
+msgstr "未激活"
+
+msgid "Device Online"
+msgstr "设备在线"
+
+msgid "Device Offline"
+msgstr "设备离线"
+
+msgid "Network Blocked"
+msgstr "网络封锁"
+
+msgid "Network Open"
+msgstr "网络开放"
+
+msgid "Anchor Device"
+msgstr "锚点设备"
+
+msgid "Internet Access"
+msgstr "外网通道"
+
+msgid "Last Seen"
+msgstr "最近锚定"
+
+msgid "Monitored MACs"
+msgstr "监控设备"
+
+msgid "Matched MACs"
+msgstr "已锁定设备"
+
+msgid "Grace Period"
+msgstr "宽限时间"
+
+msgid "Poll Interval"
+msgstr "轮询间隔"
+
+msgid "seconds"
+msgstr "秒"
+
+msgid "Reloading..."
+msgstr "正在重载..."
+
+msgid "Configuration reloaded successfully."
+msgstr "配置重载成功。"
+
+msgid "Reload failed: "
+msgstr "重载失败: "
+
+msgid "Reload Configuration"
+msgstr "重载配置"
+
+msgid "Getting Started"
+msgstr "快速开始"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Configure anchor device MAC address and timing parameters"
+msgstr "配置锚点设备 MAC 地址和时间参数"
+
+msgid "Return here to monitor real-time status"
+msgstr "返回此页面监控实时状态"
+
+msgid "NetLock \u2014 Dashboard"
+msgstr "网络锁 \u2014 仪表盘"
+
+msgid "Presence-based network control: internet access is open when the anchor device is on WiFi, and blocked for all LAN clients when it has been absent beyond the grace period."
+msgstr "基于设备在场状态的网络控制：锚点设备在 WiFi 时网络开放，锚点离线超过宽限时间后所有客户端进入网络封锁。"
+
+msgid "Service Status"
+msgstr "服务状态"
+
+msgid "Details"
+msgstr "详细信息"
+
+msgid "Quick Actions"
+msgstr "快捷操作"
+
+msgid "NetLock \u2014 Settings"
+msgstr "网络锁 \u2014 设置"
+
+msgid "Configure anchor device and network lock behavior. The anchor device is typically your phone \u2014 when it is present on WiFi, internet is open for all LAN clients. When absent beyond the grace period, all external traffic is blocked."
+msgstr "配置锚点设备和网络锁行为。锚点设备通常是手机 \u2014 手机在 WiFi 时网络开放，离线超过宽限时间后所有客户端的外网流量被切断。"
+
+msgid "Service"
+msgstr "服务"
+
+msgid "Enable NetLock"
+msgstr "启用网络锁"
+
+msgid "When disabled, internet access is immediately restored for all clients."
+msgstr "关闭后立即解除封锁，恢复所有客户端联网。"
+
+msgid "Anchor Device MAC"
+msgstr "锚点设备 MAC"
+
+msgid "MAC address(es) of the anchor device (usually your phone). Multiple MACs supported \u2014 internet opens when ANY one is detected. Select from the dropdown (live WiFi clients) or enter manually. Important: disable \"Randomize MAC\" on the phone for this WiFi network."
+msgstr "作为网络锁锚点的手机 MAC，可填多个（任一在线即开放网络）。下拉为当前在线设备，也可手动输入。注意：请在手机端关闭该 WiFi 的"随机 MAC"，否则锚点地址漂移会导致失效。"
+
+msgid "Invalid MAC address format"
+msgstr "MAC 地址格式无效"
+
+msgid "Timing"
+msgstr "时间设置"
+
+msgid "Grace Period (seconds)"
+msgstr "离线宽限时间（秒）"
+
+msgid "How long to wait after anchor goes offline before blocking internet. Prevents false triggers from phone screen-off sleep. Recommended: 300 (5 minutes)."
+msgstr "锚点持续离线超过该秒数才触发封锁，避免手机锁屏休眠误断。推荐值：300（5 分钟）。"
+
+msgid "Poll Interval (seconds)"
+msgstr "轮询间隔（秒）"
+
+msgid "How often to scan for anchor device presence. Lower values mean faster response but slightly higher CPU usage. Recommended: 10."
+msgstr "每隔多少秒扫描一次锚点是否在场。值越小响应越快但 CPU 占用略高。推荐值：10。"
+
+msgid "Advanced"
+msgstr "高级设置"
+
+msgid "Monitor Interfaces"
+msgstr "监控接口"
+
+msgid "Restrict presence scanning to specific AP interfaces. Leave empty to auto-detect all hostapd interfaces. Example: phy0-ap0."
+msgstr "限定只在这些 AP 接口扫描锚点设备，留空则自动检测全部 hostapd 接口。例如：phy0-ap0。"

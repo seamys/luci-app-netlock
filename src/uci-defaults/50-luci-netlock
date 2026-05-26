@@ -1,0 +1,25 @@
+#!/bin/sh
+# First-boot setup for luci-app-netlock
+
+# Ensure required directories exist
+mkdir -p /var/run
+
+# Set permissions on sensitive files
+chmod 0600 /etc/config/netlock 2>/dev/null || true
+
+# Set executable permissions
+chmod +x /usr/sbin/netlock 2>/dev/null || true
+chmod +x /usr/libexec/rpcd/netlock 2>/dev/null || true
+chmod +x /etc/init.d/netlock 2>/dev/null || true
+
+# Enable service
+/etc/init.d/netlock enable 2>/dev/null || true
+
+# Restart rpcd to pick up new backend
+/etc/init.d/rpcd restart 2>/dev/null || true
+
+# Clear LuCI caches
+rm -f /tmp/luci-indexcache* 2>/dev/null
+rm -rf /tmp/luci-modulecache 2>/dev/null
+
+exit 0

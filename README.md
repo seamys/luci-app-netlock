@@ -1,149 +1,113 @@
-# netlock
+# luci-app-netlock
 
-**netlock** 是一个运行在 OpenWrt 路由器上的守护进程：当指定的「锚点」手机在 WiFi 上时，外网正常开放；一旦手机离开超过宽限期，所有 LAN 客户端的外网流量立即被切断。与 OpenClash TProxy 兼容——封锁发生在 nftables raw/prerouting 阶段（优先级 -300），位于 TProxy 重定向之前。
+[![Test](https://github.com/seamys/luci-app-netlock/actions/workflows/test.yml/badge.svg)](https://github.com/seamys/luci-app-netlock/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/seamys/luci-app-netlock?display_name=tag&sort=semver)](https://github.com/seamys/luci-app-netlock/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![OpenWrt](https://img.shields.io/badge/OpenWrt-23.05%2B-00B5E2?logo=openwrt&logoColor=white)](https://openwrt.org)
+[![Platform](https://img.shields.io/badge/Platform-LuCI-8B5CF6)](https://github.com/openwrt/luci)
+[![Shell](https://img.shields.io/badge/Shell-POSIX%20sh-4EAA25?logo=gnubash&logoColor=white)](https://www.shellcheck.net/)
+[![nftables](https://img.shields.io/badge/Firewall-nftables-EC6C35)](https://nftables.org)
+
+> **Presence-based network control for OpenWrt** — Blocks internet for all LAN clients when the designated anchor device (typically a phone) is absent from WiFi beyond the grace period.
+
+Compatible with OpenClash TProxy — blocking hooks at nftables raw/prerouting priority -300, before TProxy redirect.
+
+## Features
+
+- 🔒 **Presence-based internet control** — 3-tier MAC detection: AP association → neighbor table → ping
+- 🛡️ **nftables native blocking** — Independent `inet netlock` table, does not interfere with fw4
+- ⏱️ **Graceful grace period** — Configurable delay before blocking, avoids false triggers from phone sleep
+- 🖥️ **LuCI web interface** — Real-time dashboard + settings page at `Services → NetLock`
+- 🔄 **procd integration** — Auto-start on boot, auto-respawn on crash, hot-reload on `uci commit`
+- 📱 **Multi-anchor support** — Multiple `target_mac` entries; internet opens when ANY one is detected
+- 🌐 **i18n ready** — English base with Chinese Simplified translation
+
+## Quick Install
+
+```sh
+ROUTER=root@192.168.1.1
+
+scp src/bin/netlock $ROUTER:/usr/sbin/
+scp src/rpcd/netlock $ROUTER:/usr/libexec/rpcd/
+scp src/init/netlock $ROUTER:/etc/init.d/
+scp src/config/netlock $ROUTER:/etc/config/
+ssh $ROUTER 'mkdir -p /www/luci-static/resources/view/netlock'
+scp src/view/*.js $ROUTER:/www/luci-static/resources/view/netlock/
+scp src/share/menu.d/luci-app-netlock.json $ROUTER:/usr/share/luci/menu.d/
+scp src/share/acl.d/luci-app-netlock.json $ROUTER:/usr/share/rpcd/acl.d/
+ssh $ROUTER 'chmod +x /usr/sbin/netlock /usr/libexec/rpcd/netlock /etc/init.d/netlock && \
+  /etc/init.d/netlock enable && /etc/init.d/rpcd reload && \
+  rm -rf /tmp/luci-*cache* && /etc/init.d/netlock start'
+```
+
+Then configure via LuCI → Services → NetLock → Settings, or CLI:
+
+```sh
+uci add_list netlock.global.target_mac='aa:bb:cc:dd:ee:ff'
+uci commit netlock
+/etc/init.d/netlock reload
+```
+
+## Project Structure
+
+```
+├── Makefile                    # OpenWrt SDK build definition
+├── AGENTS.md                   # Agent instructions & conventions
+├── README.md                   # This file
+├── src/
+│   ├── bin/netlock             # Main daemon (presence detection + nft blocking)
+│   ├── rpcd/netlock            # rpcd backend (ubus: status, clients)
+│   ├── init/netlock            # procd init script
+│   ├── config/netlock          # UCI default config
+│   ├── uci-defaults/50-luci-netlock  # First-boot setup
+│   ├── view/
+│   │   ├── overview.js         # LuCI dashboard (real-time status)
+│   │   └── settings.js         # LuCI settings form
+│   ├── share/
+│   │   ├── menu.d/             # LuCI menu registration
+│   │   └── acl.d/              # rpcd ACL definitions
+│   └── i18n/
+│       ├── templates/netlock.pot   # Translation template
+│       └── zh_Hans/netlock.po      # Chinese Simplified
+├── tests/
+│   ├── framework.sh            # Test assertion helpers
+│   ├── mocks.sh                # Mock UCI/nft/iwinfo for testing
+│   ├── test_presence.sh        # Presence detection tests
+│   ├── test_firewall.sh        # Firewall rule tests
+│   ├── test_config.sh          # Config loading tests
+│   └── run_all.sh              # Test runner
+└── docs/
+    ├── 01-Installation.md
+    ├── 02-Configuration.md
+    ├── 03-Usage.md
+    └── 04-Troubleshooting.md
+```
+
+## Tests
+
+```sh
+bash tests/run_all.sh           # Run all tests
+bash tests/test_presence.sh     # Run single suite
+```
+
+## Documentation
+
+See [docs/](docs/README.md) for detailed installation, configuration, usage, and troubleshooting guides.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-change`)
+3. Run tests: `bash tests/run_all.sh`
+4. Commit and push
+5. Open a Pull Request
+
+## License
+
+MIT
 
 ---
 
-## 功能特性
-
-- **基于存在感的互联网控制**：通过 MAC 地址检测手机是否在线（本机 AP 关联列表 → LAN 邻居表 → ping 三层探测）
-- **nftables 原生封锁**：独立 `inet netlock` 表，不干扰 fw4 规则链
-- **优雅宽限期**：手机离开后等待可配置秒数再封锁，避免手机信号短暂波动误触
-- **LuCI 管理界面**：通过 `Services → NETLOCK` 查看实时状态、配置目标 MAC
-- **procd 集成**：开机自启，服务崩溃自动重启，`uci commit netlock` 触发热重载
-- **多锚点支持**：可配置多个 `target_mac`，任意一个在线即保持通道开放
-
----
-
-## 文件结构
-
-```
-files/                          ← 部署到路由器的文件（与根目录一一对应）
-├── etc/
-│   ├── config/
-│   │   └── netlock         ← UCI 配置文件
-│   ├── init.d/
-│   │   └── netlock         ← procd init 脚本
-│   └── uci-defaults/
-│       └── 50-luci-netlock.sh  ← 首次启动时自动 enable 服务并刷新 LuCI
-├── usr/
-│   ├── libexec/rpcd/
-│   │   └── netlock         ← rpcd 后端（提供 ubus status/clients 方法）
-│   ├── sbin/
-│   │   └── netlock         ← 主守护进程
-│   └── share/
-│       ├── luci/menu.d/
-│       │   └── luci-app-netlock.json   ← LuCI 菜单注册
-│       └── rpcd/acl.d/
-│           └── luci-app-netlock.json   ← rpcd ACL 权限定义
-└── www/luci-static/resources/view/netlock/
-    └── overview.js             ← LuCI 前端页面
-```
-
----
-
-## 部署方法
-
-### 一键 scp 部署
-
-```bash
-ROUTER=root@192.168.0.1
-
-# 上传所有文件
-scp -r files/etc files/usr files/www "$ROUTER":/
-
-# 设置执行权限
-ssh "$ROUTER" '
-  chmod 755 /usr/sbin/netlock
-  chmod 755 /usr/libexec/rpcd/netlock
-  chmod 755 /etc/init.d/netlock
-  chmod 755 /etc/uci-defaults/50-luci-netlock.sh
-'
-
-# 首次初始化（enable 服务 + 刷新 LuCI 缓存）
-ssh "$ROUTER" 'sh /etc/uci-defaults/50-luci-netlock.sh'
-
-# 启动服务
-ssh "$ROUTER" '/etc/init.d/netlock start'
-```
-
-### 配置锚点 MAC
-
-```bash
-ssh root@192.168.0.1 '
-  uci set netlock.global.enabled=1
-  uci set netlock.global.grace_period=300   # 离线后宽限秒数
-  uci set netlock.global.poll_interval=10   # 探测间隔秒数
-  uci add_list netlock.global.target_mac="xx:xx:xx:xx:xx:xx"  # 手机 MAC
-  uci commit netlock
-  /etc/init.d/netlock restart
-'
-```
-
-也可以通过 LuCI → Services → NETLOCK 图形界面配置。
-
----
-
-## 卸载
-
-```bash
-ssh root@192.168.0.1 '
-  /etc/init.d/netlock stop
-  /etc/init.d/netlock disable
-  rm -f /usr/sbin/netlock
-  rm -f /usr/libexec/rpcd/netlock
-  rm -f /etc/init.d/netlock
-  rm -f /etc/config/netlock
-  rm -f /etc/uci-defaults/50-luci-netlock.sh
-  rm -f /usr/share/luci/menu.d/luci-app-netlock.json
-  rm -f /usr/share/rpcd/acl.d/luci-app-netlock.json
-  rm -rf /www/luci-static/resources/view/netlock
-  rm -f /var/run/netlock.json
-  /etc/init.d/rpcd reload
-'
-```
-
----
-
-## 配置参考
-
-| UCI 选项 | 默认值 | 说明 |
-|---|---|---|
-| `global.enabled` | `1` | 0=完全禁用（始终开放），1=启用 |
-| `global.grace_period` | `300` | 手机离线后封锁宽限期（秒） |
-| `global.poll_interval` | `10` | 存在感探测间隔（秒，最小 2） |
-| `global.target_mac` | — | 锚点手机 MAC（可用 `list` 添加多个） |
-| `global.monitor_iface` | — | 手动指定 AP 接口名；留空则自动发现所有 `hostapd.*` |
-
----
-
-## 工作原理
-
-```
-每 poll_interval 秒:
-  1. 检查手机 MAC 是否出现在本机 AP 关联列表
-  2. 若未找到，检查 LAN 邻居表（ip neigh）是否 REACHABLE/DELAY/PROBE
-  3. 若仍未找到但有 DHCP 租约/邻居记录，发送单次 ping 确认
-
-手机在线 → 删除 nftables 封锁表 → 外网开放
-手机离线 → 开始计时 → 超过 grace_period → 添加封锁表 → 所有 LAN 客户端断网
-
-封锁实现（nftables）:
-  table inet netlock {
-    chain prerouting {  # priority -300，早于 fw4 和 OpenClash TProxy
-      iifname "br-lan" ip  daddr <LAN子网> accept   # 放行局域网内通信
-      iifname "br-lan" ip  daddr 224.0.0.0/4 accept # 放行组播
-      iifname "br-lan" meta nfproto ipv4 counter drop # 丢弃其余 IPv4
-      iifname "br-lan" ip6 daddr { fe80::/10, ff00::/8, <ULA> } accept
-      iifname "br-lan" meta nfproto ipv6 counter drop # 丢弃其余 IPv6
-    }
-  }
-```
-
----
-
-## 系统要求
-
-- OpenWrt（建议 23.05+，需要 nftables/fw4）
-- `nftables`、`iwinfo`（通常已预装）
-- `luci`（仅 LuCI 界面需要）
+<p align="center">
+  <sub>Built for OpenWrt · Powered by nftables · Made with ☕</sub>
+</p>
