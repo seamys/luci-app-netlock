@@ -19,10 +19,13 @@ msgstr ""
 msgid "Inactive"
 msgstr ""
 
-msgid "Device Online"
+msgid "Online"
 msgstr ""
 
-msgid "Device Offline"
+msgid "Offline"
+msgstr ""
+
+msgid "All Offline"
 msgstr ""
 
 msgid "Network Blocked"
@@ -40,10 +43,7 @@ msgstr ""
 msgid "Last Seen"
 msgstr ""
 
-msgid "Monitored MACs"
-msgstr ""
-
-msgid "Matched MACs"
+msgid "Status"
 msgstr ""
 
 msgid "Grace Period"

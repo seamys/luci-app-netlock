@@ -20,11 +20,14 @@ msgstr "小时前"
 msgid "Inactive"
 msgstr "未激活"
 
-msgid "Device Online"
-msgstr "设备在线"
+msgid "Online"
+msgstr "在线"
 
-msgid "Device Offline"
-msgstr "设备离线"
+msgid "Offline"
+msgstr "离线"
+
+msgid "All Offline"
+msgstr "全部离线"
 
 msgid "Network Blocked"
 msgstr "网络封锁"
@@ -41,11 +44,8 @@ msgstr "外网通道"
 msgid "Last Seen"
 msgstr "最近锚定"
 
-msgid "Monitored MACs"
-msgstr "监控设备"
-
-msgid "Matched MACs"
-msgstr "已锁定设备"
+msgid "Status"
+msgstr "状态"
 
 msgid "Grace Period"
 msgstr "宽限时间"
